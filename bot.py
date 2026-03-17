@@ -13,7 +13,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # ২. কনফিগারেশন
-TOKEN = "8675593212:AAEq_tOcW7hMLZwJvqUt_Os6V7h7JEozB0E"
+TOKEN = "8065924199:AAGAksW8KXDecaEopIrzbsS7IeQMO9Adzb8"
 ADMIN_ID = 6856009995 
 
 # ৩. ডেটাবেস ফাংশন (পরিসংখ্যান সংরক্ষণের জন্য)
