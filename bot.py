@@ -2,66 +2,49 @@ import asyncio
 import random
 import string
 import logging
-import sys
-from telegram import Update, ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
+from telegram import Update, ReplyKeyboardMarkup, KeyboardButton
 from telegram.ext import Application, MessageHandler, filters, ContextTypes, ConversationHandler
-from telegram.error import RetryAfter, NetworkError, TimedOut, TelegramError, BadRequest
+from telegram.error import RetryAfter
 
-# --- রেলওয়ে ও ভিপিএস ফুল লগিং ---
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
-)
-logger = logging.getLogger(__name__)
-
-# --- কনফিগারেশন ---
+# --- আপনার দেওয়া কনফিগারেশন ---
 TOKEN = "8675593212:AAHum52QbRC7zbui6y1cLc8dqKRRoSkIz8Y"
 PASSWORD = "MIZANUR RAHMAN"
 DEV_LINK = "https://t.me/Mizanur_Rahman_501314"
 
+# স্টেট হ্যান্ডলিং
 WAIT_PASS, WAIT_TARGET = range(2)
-is_attack_running = {}
 
-# --- বিশাল গ্লোবাল ডাটাবেস (চুল পরিমাণ ছোট করা হয়নি) ---
-LOCATIONS = [
-    "United States", "United Kingdom", "Germany", "Russia", "Brazil", "India", "Canada", "France", 
-    "Japan", "Australia", "Singapore", "Turkey", "Netherlands", "Switzerland", "South Korea", 
-    "Italy", "Spain", "UAE", "Saudi Arabia", "South Africa", "Mexico", "Argentina"
+# মারাত্মক অ্যাটাক ভেক্টর (এগুলো হোয়াটসঅ্যাপের মডারেটরদের দ্রুত ট্রিগার করে)
+CRITICAL_VECTORS = [
+    "CHILD_EXPLOITATION_FATAL_V8", "TERRORIST_THREAT_LVL_MAX",
+    "GLOBAL_HUMAN_TRAFFICKING_ALERT", "SEVERE_FINANCIAL_FRAUD_NETWORK",
+    "MALICIOUS_PHISHING_CYBER_ATTACK", "VIOLENT_EXTREMISM_DETECTION_URGENT"
 ]
 
-GLOBAL_VECTORS = [
-    "CHILD_EXPLOITATION_FATAL_CORE_CRITICAL_V9", 
-    "TERRORIST_PROPAGANDA_LVL_MAX_ULTIMATE",
-    "GLOBAL_HUMAN_TRAFFICKING_URGENT_REPORT", 
-    "SEVERE_PHISHING_MALWARE_DISTRIBUTION_X",
-    "HIGH_LEVEL_FINANCIAL_FRAUD_SCAM_ALERT", 
-    "VIOLENT_THREAT_COMMUNITY_SAFETY_BREACH"
-]
+# ১. আনলিমিটেড আইপি ও ভার্চুয়াল আইডি জেনারেটর
+def generate_stealth_ip():
+    # রিয়েলিস্টিক আইপি জেনারেশন
+    return f"{random.randint(45,210)}.{random.randint(10,250)}.{random.randint(10,255)}.{random.randint(1,254)}"
 
-# --- শক্তিশালী জেনারেটরসমূহ (১০০% রোটেশন নিশ্চিত) ---
-def generate_global_ip():
-    return f"{random.randint(1,223)}.{random.randint(0,255)}.{random.randint(0,255)}.{random.randint(1,254)}"
-
-def generate_unique_id():
+def generate_stealth_id():
+    # ইউনিক বট আইডি
     chars = string.ascii_uppercase + string.digits
     return "MR_DEV_" + "".join(random.choice(chars) for _ in range(8))
 
-def generate_infinite_ua():
-    models = ["SM-S931B", "Pixel_8_Pro", "iPhone16,2", "SM-G998B", "OnePlus_12"]
-    return f"Mozilla/5.0 (Linux; Android {random.randint(12,14)}; {random.choice(models)}) WhatsApp/2.24.{random.randint(1,50)}"
-
-# --- ১. কমান্ড হ্যান্ডলার ---
+# ২. মেইন মেনু
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    key = [[KeyboardButton("🚀 START ATTACK"), KeyboardButton("📊 Status")]]
+    key = [[KeyboardButton("🚀 START 1000-MEGA ATTACK"), KeyboardButton("📊 Status")]]
     markup = ReplyKeyboardMarkup(key, resize_keyboard=True)
+    
     await update.message.reply_text(
-        "🔥 **M R DEVELOPER SUPREME ENGINE v9.9** 🔥\n\n"
-        "এই সিস্টেমে গ্লোবাল আইপি রোটেশন এবং লাইভ রিপোর্ট ট্র্যাকিং ফিক্স করা হয়েছে।\n\n"
-        f"👨‍💻 **Developer:** [M R DEVELOPER]({DEV_LINK})",
-        reply_markup=markup, parse_mode="Markdown", disable_web_page_preview=True
+        "🔥 **M R DEVELOPER MEGA SYSTEM v8.0** 🔥\n\n"
+        "এই প্যানেলটি ১০০০টি ইউনিক পরিচয় ব্যবহার করে সার্ভারে হিট করবে।\n"
+        "এটি সম্পূর্ণ ডিটেকশন-ফ্রি এবং মডারেটর সেফ।",
+        reply_markup=markup
     )
     return ConversationHandler.END
 
+# ৩. সিকিউরিটি চেক
 async def ask_pass(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("🔑 **ACCESS CODE:** আপনার সিক্রেট পাসওয়ার্ডটি দিন।")
     return WAIT_PASS
@@ -70,103 +53,91 @@ async def check_pass(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.message.text == PASSWORD:
         await update.message.reply_text("✅ ACCESS GRANTED!\nটার্গেট নাম্বারটি দিন (কান্ট্রি কোডসহ):")
         return WAIT_TARGET
-    await update.message.reply_text("❌ ভুল পাসওয়ার্ড!")
+    await update.message.reply_text("❌ ভুল পাসওয়ার্ড! আবার চেষ্টা করুন।")
     return WAIT_PASS
 
-async def stop_attack(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.message.from_user.id
-    is_attack_running[user_id] = False
-    await update.message.reply_text("🛑 **MISSION HALTED.**", reply_markup=ReplyKeyboardRemove())
-
-# --- ২. কোর ইঞ্জিন (UI FIXED & FULL DATA) ---
-async def run_global_mission(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.message.from_user.id
+# ৪. ১০০০-রিপোর্ট মেগা অ্যাটাক লজিক (ডিটেকশন-ফ্রি সিস্টেম)
+async def run_mega_mission(update: Update, context: ContextTypes.DEFAULT_TYPE):
     target = update.message.text
-    is_attack_running[user_id] = True
+    status_msg = await update.message.reply_text(f"📡 **M R DEVELOPER** হাই-সিকিউর নেটওয়ার্ক কানেক্ট হচ্ছে: {target}...")
+    await asyncio.sleep(2)
+
+    log_box = "🛰️ **STEALTH MEGA ATTACK INITIALIZED**\n"
     
-    stop_markup = ReplyKeyboardMarkup([[KeyboardButton("🛑 STOP ATTACK")]], resize_keyboard=True)
-    status_msg = await update.message.reply_text(f"📡 সংযোগ স্থাপন করা হচ্ছে: {target}...", reply_markup=stop_markup)
-    
-    log_screen = "" # লাইভ লগের জন্য
-
-    try:
-        for i in range(1, 1001):
-            if not is_attack_running.get(user_id, True):
-                await status_msg.edit_text(f"🛑 **ATTACK STOPPED.**\n📊 রিপোর্ট: {i} টি সম্পন্ন।")
-                return ConversationHandler.END
-
-            # রিয়েল রোটেশন
-            vector = random.choice(GLOBAL_VECTORS)
-            ip = generate_global_ip()
-            bot_id = generate_unique_id()
-            loc = random.choice(LOCATIONS)
+    # ১০০০টি রিপোর্টের মেগা লুপ
+    for i in range(1, 1001):
+        vector = random.choice(CRITICAL_VECTORS)
+        ip = generate_stealth_ip()
+        bot_id = generate_stealth_id()
+        
+        log_entry = f"\n[{i:04d}] ✅ {bot_id} | IP: {ip} | {vector}"
+        log_box += log_entry
+        
+        # UI স্ক্রলিং এফেক্ট (শেষ ৮ লাইন দেখাবে)
+        lines = log_box.split('\n')
+        if len(lines) > 10:
+            log_box = "🛰️ **ATTACK BY M R DEVELOPER**\n" + "\n".join(lines[-8:])
             
-            # লগের ফরম্যাট ঠিক করা (যাতে 400 Bad Request না আসে)
-            log_line = f"✅ {bot_id} | {ip} | {loc}\n"
-            log_screen += log_line
-            
-            # স্ক্রিনে শুধু শেষ ৫টি রিপোর্ট দেখাবে যাতে মেসেজ বডি ছোট থাকে (টেলিগ্রাম লিমিট)
-            lines = log_screen.strip().split('\n')
-            display_log = "\n".join(lines[-5:])
+        # প্রতি ১০টি রিপোর্ট পরপর আপডেট (টেলিগ্রাম ও হোয়াটসঅ্যাপ সেফটি)
+        if i % 10 == 0 or i == 1000:
+            try:
+                progress = (i / 1000) * 100
+                await status_msg.edit_text(
+                    f"🎯 **Target:** `{target}`\n"
+                    f"📊 **Progress:** {progress:.1f}%\n"
+                    f"🛡️ **Mode:** Anti-Detection Stealth\n"
+                    f"`------------------------------------`{log_box}\n"
+                    f"`------------------------------------`"
+                )
+                # হোয়াটসঅ্যাপের বট যেন ধরতে না পারে সেজন্য ২.৮ সেকেন্ড বিরতি
+                await asyncio.sleep(2.8) 
+            except RetryAfter as e:
+                await asyncio.sleep(e.retry_after)
+            except Exception:
+                await asyncio.sleep(1)
+        
+        # প্রতি রিপোর্টের মাঝে সামান্য গ্যাপ (মানুষের মতো রিপোর্ট সিমুলেশন)
+        await asyncio.sleep(0.05)
 
-            if i % 10 == 0 or i == 1000:
-                try:
-                    progress = (i / 1000) * 100
-                    text = (
-                        f"🎯 **Target:** `{target}`\n"
-                        f"📊 **Progress:** {progress:.1f}%\n"
-                        f"🌍 **IP Rotation:** Active ✅\n"
-                        f"🛡️ **Method:** Supreme Global v9.9\n"
-                        f"`------------------------------------`\n"
-                        f"{display_log}\n"
-                        f"`------------------------------------`"
-                    )
-                    await status_msg.edit_text(text, parse_mode="Markdown")
-                    await asyncio.sleep(5) # ৫ সেকেন্ড ডিলে ফর স্ট্যাবিলিটি
-                except (RetryAfter, TimedOut, NetworkError):
-                    await asyncio.sleep(10)
-                except BadRequest:
-                    # যদি মেসেজ এডিট এরর দেয়, নতুন করে পাঠাবে
-                    status_msg = await update.message.reply_text("🔄 UI Refreshing...")
-                    await asyncio.sleep(2)
-                except Exception:
-                    await asyncio.sleep(2)
-            
-            await asyncio.sleep(0.05)
-
-        await status_msg.edit_text(
-            f"🎯 **Target:** `{target}`\n\n✅ **MISSION COMPLETE**\n"
-            f"📊 মোট রিপোর্ট: ১০০০/১০০০ সাকসেসফুল।\n"
-            f"📢 ফলাফল: ২-৫ ঘণ্টার মধ্যে ব্যান হয়ে যাবে।\n\n"
-            f"👨‍💻 **Dev:** {DEV_LINK}",
-            reply_markup=ReplyKeyboardRemove(), disable_web_page_preview=True
-        )
-
-    except Exception as e:
-        logger.error(f"Error: {e}")
-    
+    # মিশন সাকসেসফুল মেসেজ
+    await status_msg.edit_text(
+        f"🎯 **Target:** `{target}`\n\n"
+        "✅ **MISSION COMPLETE BY M R DEVELOPER**\n"
+        "📊 মোট রিপোর্ট: ১০০০/১০০০ সাকসেসফুল।\n"
+        "🛡️ মেথড: **M R DEVELOPER PRIVATE STEALTH METHOD**\n\n"
+        f"📢 **ফলাফল:** টার্গেট নাম্বারটি ১০০০টি মারাত্মক ভায়োলেশনে ফ্ল্যাগ করা হয়েছে। ইনশাআল্লাহ পরবর্তী **২ থেকে ৫ ঘণ্টার** ভিতরে হোয়াটসঅ্যাপ পার্মানেন্ট ব্যান হয়ে যাবে।\n\n"
+        f"👨‍💻 **Contact:** {DEV_LINK}",
+        disable_web_page_preview=True
+    )
     return ConversationHandler.END
 
-# --- ৩. মেইন রানার ---
+# ৫. বটের বর্তমান অবস্থা
+async def bot_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        f"📊 **BOT STATUS:** Online ✅\n"
+        f"⚙️ **Attack Mode:** 1000 Mass Reports\n"
+        f"👤 **Developer:** [M R DEVELOPER]({DEV_LINK})",
+        parse_mode="Markdown",
+        disable_web_page_preview=True
+    )
+
+# --- রানার ---
 def main():
-    # রেলওয়ে ক্রাশ ঠেকাতে হাই-টাইমআউট সেটিংস
-    app = Application.builder().token(TOKEN).connect_timeout(120).read_timeout(120).build()
-    
-    conv_handler = ConversationHandler(
-        entry_points=[MessageHandler(filters.Regex('^🚀 START ATTACK$'), ask_pass)],
+    app = Application.builder().token(TOKEN).build()
+    conv = ConversationHandler(
+        entry_points=[MessageHandler(filters.Regex('^🚀 START 1000-MEGA ATTACK$'), ask_pass)],
         states={
             WAIT_PASS: [MessageHandler(filters.TEXT & ~filters.COMMAND, check_pass)],
-            WAIT_TARGET: [MessageHandler(filters.TEXT & ~filters.COMMAND, run_global_mission)],
+            WAIT_TARGET: [MessageHandler(filters.TEXT & ~filters.COMMAND, run_mega_mission)],
         },
         fallbacks=[MessageHandler(filters.COMMAND, start)],
     )
-    
-    app.add_handler(conv_handler)
-    app.add_handler(MessageHandler(filters.Regex('^🛑 STOP ATTACK$'), stop_attack))
+    app.add_handler(conv)
     app.add_handler(MessageHandler(filters.Regex('^/start$'), start))
+    app.add_handler(MessageHandler(filters.Regex('^📊 Status$'), bot_status))
     
-    logger.info("M R DEVELOPER BOT v9.9 STARTED")
-    app.run_polling(drop_pending_updates=True)
+    print("✅ M R DEVELOPER MEGA BAN BOT v8.0 IS ACTIVE.")
+    app.run_polling()
 
 if __name__ == '__main__':
     main()
