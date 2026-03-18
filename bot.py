@@ -17,7 +17,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # --- কনফিগারেশন ---
-TOKEN = "8675593212:AAFpgJegGWD7FSbcnSuMv2he5aQDSpMbp_Q"
+TOKEN = "8675593212:AAHj5zwFMT75qrK8jD2ppxK74hH42FZDYXI"
 PASSWORD = "MIZANUR RAHMAN"
 DEV_LINK = "https://t.me/Mizanur_Rahman_501314"
 
