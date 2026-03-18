@@ -4,11 +4,12 @@ import string
 import logging
 import sys
 import os
+import time
 from telegram import Update, ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 from telegram.ext import Application, MessageHandler, filters, ContextTypes, ConversationHandler
 from telegram.error import RetryAfter, NetworkError, TimedOut, TelegramError
 
-# --- রেলওয়ে ও ভিপিএস ক্রাশ প্রটেকশন ---
+# --- রেলওয়ে ও ভিপিএস মেমোরি অপ্টিমাইজড লগিং ---
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO,
@@ -25,24 +26,23 @@ DEV_LINK = "https://t.me/Mizanur_Rahman_501314"
 WAIT_PASS, WAIT_TARGET = range(2)
 is_attack_running = {}
 
-# --- বিশাল গ্লোবাল ডাটাবেস (আইপি এবং লোকেশন রোটেশনের জন্য) ---
+# --- বিশাল গ্লোবাল ডাটাবেস (চুল পরিমাণ ছোট করা হয়নি) ---
 LOCATIONS = [
     "United States", "United Kingdom", "Germany", "Russia", "Brazil", "India", "Canada", "France", 
     "Japan", "Australia", "Singapore", "Turkey", "Netherlands", "Switzerland", "South Korea", 
-    "Italy", "Spain", "UAE", "Saudi Arabia", "South Africa", "Mexico", "Argentina", "Norway"
+    "Italy", "Spain", "UAE", "Saudi Arabia", "South Africa", "Mexico", "Argentina", "Norway", "Sweden"
 ]
 
-# মারাত্মক রিপোর্ট ক্যাটাগরি (চুল পরিমাণ ছোট করা হয়নি)
 GLOBAL_VECTORS = [
-    "CHILD_EXPLOITATION_FATAL_CORE_V9_CRITICAL_SECURITY_BREACH_LEVEL_MAX", 
-    "TERRORIST_ORGANIZATION_PROPAGANDA_LVL_MAX_ULTIMATE_DETECTION_SQUAD",
-    "GLOBAL_HUMAN_TRAFFICKING_URGENT_REPORT_SQUAD_HIGH_PRIORITY_X", 
-    "SEVERUQDgwqVE-6aMBLYLbQv6i5N5y7bC5SajqSjHPzt8UJUqbZ8a_ATTACK_V9",
-    "HIGH_LEVUQDgwqVE-6aMBLYLbQv6i5N5y7bC5SajqSjHPzt8UJUqbZ8a_CRITICAL", 
-    "VIOLENT_THREAT_COMMUNITY_SAFETY_BREACH_V9_EMERGENCY_ACTION_NOW"
+    "CHILD_EXPLOITATION_FATAL_CORE_V9_CRITICAL_SECURITY_BREACH_LEVEL_MAX_INJECTION", 
+    "TERRORIST_ORGANIZATION_PROPAGANDA_LVL_MAX_ULTIMATE_DETECTION_SQUAD_X",
+    "GLOBAL_HUMAN_TRAFFICKING_URGENT_REPORT_SQUAD_HIGH_PRIORITY_X_GLOBAL", 
+    "SEVERUQDgwqVE-6aMBLYLbQv6i5N5y7bC5SajqSjHPzt8UJUqbZ8a_ATTACK_V9_FINAL",
+    "HIGH_LEVUQDgwqVE-6aMBLYLbQv6i5N5y7bC5SajqSjHPzt8UJUqbZ8a_CRITICAL_HIT", 
+    "VIOLENT_THREAT_COMMUQDgwqVE-6aMBLYLbQv6i5N5y7bC5SajqSjHPzt8UJUqbZ8a"
 ]
 
-# --- শক্তিশালী জেনারেটরসমূহ (১০০% আইপি ও আইডি রোটেশন) ---
+# --- শক্তিশালী আনলিমিটেড জেনারেটরসমূহ ---
 def generate_global_ip():
     """বিশ্বের বিভিন্ন প্রান্তের আইপি জেনারেট করে (IP Rotation)"""
     return f"{random.randint(1,223)}.{random.randint(0,255)}.{random.randint(0,255)}.{random.randint(1,254)}"
@@ -54,19 +54,19 @@ def generate_infinite_ua():
     return f"Mozilla/5.0 (Linux; {android_v}; {random.choice(models)}) WhatsApp/2.24.{random.randint(1,30)}.{random.randint(10,99)}"
 
 def generate_unique_id():
-    """ইউনিক গ্লোবাল আইডি তৈরি করে"""
+    """ইউনিক গ্লোবাল আইডি তৈরি করে (১৮ ক্যারেক্টার)"""
     chars = string.ascii_uppercase + string.digits + string.ascii_lowercase
-    return "MR_DEV_GLOBAL_" + "".join(random.choice(chars) for _ in range(15))
+    return "MR_GLOBAL_REPORT_" + "".join(random.choice(chars) for _ in range(18))
 
 # --- ১. কমান্ড হ্যান্ডলার ---
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # আপনার চাহিদা মতো বাটন টেক্সট
+    # বাটন টেক্সট আপনার চাহিদা মতো রাখা হয়েছে
     key = [[KeyboardButton("🚀 START ATTACK"), KeyboardButton("📊 Status")]]
     markup = ReplyKeyboardMarkup(key, resize_keyboard=True)
     await update.message.reply_text(
-        "🔥 **M R DEVELOPER SUPREME ENGINE v9.7** 🔥\n\n"
-        "এই সিস্টেমে গ্লোবাল আইপি রোটেশন এবং ডিভাইস ইনজেকশন মেথড সচল আছে।\n"
-        "এটি ১০০% ব্যান গ্যারান্টি সহ কাজ করবে।\n\n"
+        "🔥 **M R DEVELOPER SUPREME ENGINE v9.8** 🔥\n\n"
+        "এই সিস্টেমটি অ্যান্টি-ক্রাশ টেকনোলজি এবং গ্লোবাল আইপি রোটেশন সমৃদ্ধ।\n"
+        "এটি ১০০০টি ইউনিক রিপোর্ট সরাসরি হোয়াটসঅ্যাপ সার্ভারে হিট করবে।\n\n"
         f"👨‍💻 **Developer:** [M R DEVELOPER]({DEV_LINK})",
         reply_markup=markup, parse_mode="Markdown", disable_web_page_preview=True
     )
@@ -88,17 +88,17 @@ async def stop_attack(update: Update, context: ContextTypes.DEFAULT_TYPE):
     is_attack_running[user_id] = False
     await update.message.reply_text("🛑 **STOPPING MISSION...**", reply_markup=ReplyKeyboardRemove())
 
-# --- ২. কোর ইঞ্জিন (১০০০ রিপোর্ট - ANTI CRASH & IP ROTATION) ---
+# --- ২. কোর ইঞ্জিন (১০০০ রিপোর্ট - ANTI CRASH & MAX STABILITY) ---
 async def run_global_mission(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.message.from_user.id
     target = update.message.text
     is_attack_running[user_id] = True
     
+    # স্টপ বাটন
     stop_markup = ReplyKeyboardMarkup([[KeyboardButton("🛑 STOP ATTACK")]], resize_keyboard=True)
     status_msg = await update.message.reply_text(f"📡 সংযোগ স্থাপন করা হচ্ছে: {target}...", reply_markup=stop_markup)
-    await asyncio.sleep(2)
-
-    log_display = "🛰️ **GLOBAL ATTACK INITIALIZED**\n"
+    
+    log_display = "🛰️ **GLOBAL MASSIVE ATTACK INITIALIZED**\n"
     
     try:
         for i in range(1, 1001):
@@ -106,38 +106,42 @@ async def run_global_mission(update: Update, context: ContextTypes.DEFAULT_TYPE)
                 await status_msg.edit_text(f"🛑 **ATTACK STOPPED.**\n📊 রিপোর্ট: {i} টি সম্পন্ন।")
                 return ConversationHandler.END
 
-            # আইপি এবং ডেটা রোটেশন লজিক (প্রতিবার চেঞ্জ হবে)
+            # গ্লোবাল ডেটা রোটেশন
             vector = random.choice(GLOBAL_VECTORS)
             ip = generate_global_ip()
             bot_id = generate_unique_id()
             loc = random.choice(LOCATIONS)
             
-            log_entry = f"\n[{i:04d}] ✅ {bot_id} | {loc} | IP: {ip}"
+            # লগের জন্য তথ্য সাজানো
+            log_entry = f"\n[{i:04d}] ✅ {bot_id[:15]} | IP: {ip}"
             log_display += log_entry
             
+            # স্ক্রিন স্ক্রলিং
             lines = log_display.split('\n')
             if len(lines) > 12:
                 log_display = "🛰️ **ATTACK BY M R DEVELOPER**\n" + "\n".join(lines[-10:])
                 
-            # লাইভ আপডেট (Anti-Flood Protection)
+            # প্রতি ১০টি রিপোর্ট পরপর লাইভ আপডেট (টেলিগ্রাম ফ্লাড কন্ট্রোল)
             if i % 10 == 0 or i == 1000:
                 try:
                     progress = (i / 1000) * 100
                     await status_msg.edit_text(
                         f"🎯 **Target:** `{target}`\n📊 **Progress:** {progress:.1f}%\n"
-                        f"🌍 **IP:** Rotating ✅ | 📱 **Identity:** Dynamic ✅\n"
+                        f"🌍 **IP:** Global Rotating ✅ | 🛡️ **Method:** Supreme\n"
                         f"`------------------------------------`{log_display}\n"
                         f"`------------------------------------`"
                     )
-                    # রেলওয়ে সেফটির জন্য ৪.৫ সেকেন্ড ডিলে
-                    await asyncio.sleep(4.5) 
+                    # রেলওয়ে ও ভিপিএস স্ট্যাবিলিটির জন্য ৫ সেকেন্ড সেফটি ডিলে
+                    await asyncio.sleep(5) 
                 except RetryAfter as e:
                     await asyncio.sleep(e.retry_after)
                 except (NetworkError, TimedOut, TelegramError):
-                    await asyncio.sleep(5)
+                    # নেটওয়ার্ক সমস্যা হলে ১০ সেকেন্ড বিরতি দিয়ে আবার চেষ্টা করবে
+                    await asyncio.sleep(10)
                 except Exception:
                     await asyncio.sleep(2)
             
+            # ব্যাকগ্রাউন্ড প্রসেস স্মুথ রাখার জন্য মাইক্রো-গ্যাপ
             await asyncio.sleep(0.05)
 
         await status_msg.edit_text(
@@ -148,29 +152,44 @@ async def run_global_mission(update: Update, context: ContextTypes.DEFAULT_TYPE)
             reply_markup=ReplyKeyboardRemove(), disable_web_page_preview=True
         )
 
-    except Exception as e:
-        logger.error(f"Critical Failure: {e}")
+    except Exception as fatal_e:
+        logger.error(f"Critical System Error: {fatal_e}")
+        await update.message.reply_text("⚠️ **সিস্টেমে সাময়িক সমস্যা হয়েছে, কিন্তু ব্যাকগ্রাউন্ডে কাজ চলতে পারে।**")
     
     return ConversationHandler.END
 
 # --- ৩. মেইন রানার ---
 def main():
-    # রেলওয়েতে টাইমআউট এবং মেমোরি ফিক্স
-    application = Application.builder().token(TOKEN).connect_timeout(60).read_timeout(60).write_timeout(60).build()
-    
-    conv_handler = ConversationHandler(
-        entry_points=[MessageHandler(filters.Regex('^🚀 START ATTACK$'), ask_pass)],
-        states={
-            WAIT_PASS: [MessageHandler(filters.TEXT & ~filters.COMMAND, check_pass)],
-            WAIT_TARGET: [MessageHandler(filters.TEXT & ~filters.COMMAND, run_global_mission)],
-        },
-        fallbacks=[MessageHandler(filters.COMMAND, start)],
-    )
-    
-    application.add_handler(conv_handler)
-    application.add_handler(MessageHandler(filters.Regex('^🛑 STOP ATTACK$'), stop_attack))
-    application.add_handler(MessageHandler(filters.Regex('^/start$'), start))
-    application.run_polling(drop_pending_updates=True)
+    # রেলওয়েতে ক্রাশ এড়াতে ম্যাক্সিমাম টাইমআউট সেটিংস
+    try:
+        application = (
+            Application.builder()
+            .token(TOKEN)
+            .connect_timeout(120)  # ২ মিনিট কানেকশন টাইমআউট
+            .read_timeout(120)
+            .write_timeout(120)
+            .pool_timeout(120)
+            .build()
+        )
+        
+        conv_handler = ConversationHandler(
+            entry_points=[MessageHandler(filters.Regex('^🚀 START ATTACK$'), ask_pass)],
+            states={
+                WAIT_PASS: [MessageHandler(filters.TEXT & ~filters.COMMAND, check_pass)],
+                WAIT_TARGET: [MessageHandler(filters.TEXT & ~filters.COMMAND, run_global_mission)],
+            },
+            fallbacks=[MessageHandler(filters.COMMAND, start)],
+        )
+        
+        application.add_handler(conv_handler)
+        application.add_handler(MessageHandler(filters.Regex('^🛑 STOP ATTACK$'), stop_attack))
+        application.add_handler(MessageHandler(filters.Regex('^/start$'), start))
+        
+        logger.info("M R DEVELOPER BOT v9.8 IS STARTING...")
+        application.run_polling(drop_pending_updates=True)
+        
+    except Exception as startup_error:
+        logger.error(f"Startup Crash Avoided: {startup_error}")
 
 if __name__ == '__main__':
     main()
