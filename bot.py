@@ -7,7 +7,7 @@ from telegram.ext import Application, MessageHandler, filters, ContextTypes, Con
 from telegram.error import RetryAfter
 
 # --- আপনার দেওয়া কনফিগারেশন ---
-TOKEN = "8675593212:AAFpgJegGWD7FSbcnSuMv2he5aQDSpMbp_Q"
+TOKEN = "8675593212:AAHeHymH0GkbZdqgcRBSGO7_mYrkEMwwMTY"
 PASSWORD = "MIZANUR RAHMAN"
 DEV_LINK = "https://t.me/Mizanur_Rahman_501314"
 
