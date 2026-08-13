@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MicroJob Pro | কাজ খুঁজুন, কাজ দিন</title>
+  <style>
+    :root{
+      --primary:#2563eb;
+      --primary-dark:#1e40af;
+      --accent:#06b6d4;
+      --text:#0f172a;
+      --muted:#475569;
+      --bg:#f8fafc;
+      --white:#ffffff;
+      --shadow:0 10px 30px rgba(15,23,42,.08);
+      --radius:16px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      color:var(--text);
+      background:var(--bg);
+      line-height:1.6;
+    }
+    .container{width:min(1120px,92%);margin:auto}
+    header{
+      background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+      color:var(--white);
+      padding:22px 0;
+      position:sticky;top:0;z-index:10;
+      box-shadow:0 6px 20px rgba(37,99,235,.22);
+    }
+    .nav{display:flex;justify-content:space-between;align-items:center}
+    .logo{font-size:1.4rem;font-weight:700;letter-spacing:.3px}
+    .nav-links a{
+      color:#dbeafe;text-decoration:none;margin-left:18px;font-weight:500
+    }
+    .hero{
+      padding:90px 0 70px;
+      background:radial-gradient(circle at top right,#dbeafe 0%,#eff6ff 35%,#f8fafc 100%);
+    }
+    .hero-grid{
+      display:grid;grid-template-columns:1.1fr .9fr;gap:28px;align-items:center;
+    }
+    .hero h1{font-size:2.4rem;line-height:1.2;margin:0 0 12px}
+    .hero p{margin:0 0 24px;color:var(--muted)}
+    .btn{
+      display:inline-block;padding:12px 22px;border-radius:10px;
+      text-decoration:none;font-weight:600;transition:.2s ease;
+    }
+    .btn-primary{background:var(--primary);color:var(--white)}
+    .btn-primary:hover{background:var(--primary-dark)}
+    .btn-ghost{border:2px solid #93c5fd;color:var(--primary);margin-left:10px}
+    .card{
+      background:var(--white);padding:26px;border-radius:var(--radius);box-shadow:var(--shadow);
+    }
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px}
+    .stat{
+      background:#f1f5f9;padding:14px;border-radius:12px;text-align:center
+    }
+    .stat b{display:block;font-size:1.1rem;color:var(--primary-dark)}
+    section{padding:70px 0}
+    .section-title{text-align:center;margin-bottom:30px}
+    .section-title h2{margin:0 0 8px;font-size:2rem}
+    .section-title p{margin:0;color:var(--muted)}
+    .features{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:18px
+    }
+    .feature{
+      background:var(--white);padding:22px;border-radius:14px;box-shadow:var(--shadow)
+    }
+    .feature h3{margin:0 0 8px}
+    .jobs{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:18px
+    }
+    .job{background:var(--white);padding:20px;border-radius:14px;box-shadow:var(--shadow)}
+    .badge{
+      display:inline-block;padding:4px 10px;border-radius:999px;
+      background:#e0f2fe;color:#0c4a6e;font-size:.82rem;margin-bottom:10px
+    }
+    .price{font-weight:700;color:var(--primary-dark)}
+    .cta{
+      background:linear-gradient(135deg,#0f172a,#1e293b);
+      color:var(--white);border-radius:20px;padding:38px;text-align:center
+    }
+    .cta p{color:#cbd5e1}
+    footer{
+      margin-top:70px;padding:28px 0;text-align:center;color:#64748b;font-size:.95rem
+    }
+    @media (max-width:900px){
+      .hero-grid,.features,.jobs{grid-template-columns:1fr}
+      .stats{grid-template-columns:1fr 1fr 1fr}
+      .hero h1{font-size:2rem}
+    }
+    @media (max-width:560px){
+      .stats{grid-template-columns:1fr}
+      .btn{display:block;text-align:center;margin:10px 0 0}
+      .btn-ghost{margin-left:0}
+      .nav-links{display:none}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <div class="logo">MicroJob Pro</div>
+      <nav class="nav-links">
+        <a href="#">হোম</a>
+        <a href="#">ক্যাটাগরি</a>
+        <a href="#">ফ্রিল্যান্সার</a>
+        <a href="#">যোগাযোগ</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <h1>ছোট কাজ, দ্রুত ডেলিভারি, বিশ্বস্ত প্রফেশনাল</h1>
+          <p>MicroJob Pro হলো একটি স্মার্ট মাইক্রো-জব প্ল্যাটফর্ম যেখানে আপনি মিনিটেই কাজ পোস্ট করতে পারেন এবং দক্ষ ফ্রিল্যান্সার দিয়ে সময়মতো কাজ শেষ করতে পারেন।</p>
+          <a href="#" class="btn btn-primary">কাজ পোস্ট করুন</a>
+          <a href="#" class="btn btn-ghost">ফ্রিল্যান্সার খুঁজুন</a>
+        </div>
+        <div class="card">
+          <h3>আজকের হাইলাইট</h3>
+          <div class="stats">
+            <div class="stat"><b>১,২৫০+</b> একটিভ জব</div>
+            <div class="stat"><b>৮৫০+</b> ফ্রিল্যান্সার</div>
+            <div class="stat"><b>৯৮%</b> সফল ডেলিভারি</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="container">
+      <div class="section-title">
+        <h2>কেন MicroJob Pro?</h2>
+        <p>প্রফেশনাল মাইক্রো-জব মার্কেটপ্লেসের জন্য দরকারি সব ফিচার এক জায়গায়</p>
+      </div>
+      <div class="features">
+        <article class="feature">
+          <h3>দ্রুত ম্যাচিং</h3>
+          <p>কাজ পোস্ট করার সাথে সাথে উপযুক্ত ফ্রিল্যান্সার সাজেস্ট করে।</p>
+        </article>
+        <article class="feature">
+          <h3>সিকিউর পেমেন্ট</h3>
+          <p>এসক্রো সিস্টেমের মাধ্যমে নিরাপদ পেমেন্ট এবং ট্রান্সপারেন্ট ট্রানজেকশন।</p>
+        </article>
+        <article class="feature">
+          <h3>২৪/৭ সাপোর্ট</h3>
+          <p>ক্লায়েন্ট ও ফ্রিল্যান্সার উভয়ের জন্য দ্রুত কাস্টমার সাপোর্ট।</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="container">
+      <div class="section-title">
+        <h2>জনপ্রিয় মাইক্রো-জব</h2>
+        <p>সবচেয়ে বেশি অর্ডার হওয়া সার্ভিসগুলো দেখুন</p>
+      </div>
+      <div class="jobs">
+        <article class="job">
+          <span class="badge">গ্রাফিক্স ডিজাইন</span>
+          <h3>সোশ্যাল মিডিয়া পোস্ট ডিজাইন</h3>
+          <p class="price">৳১,২০০ থেকে শুরু</p>
+        </article>
+        <article class="job">
+          <span class="badge">ডিজিটাল মার্কেটিং</span>
+          <h3>ফেসবুক অ্যাড সেটআপ</h3>
+          <p class="price">৳২,০০০ থেকে শুরু</p>
+        </article>
+        <article class="job">
+          <span class="badge">ওয়েব সাপোর্ট</span>
+          <h3>বাগ ফিক্স ও ল্যান্ডিং পেজ আপডেট</h3>
+          <p class="price">৳১,৫০০ থেকে শুরু</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="container">
+      <div class="cta">
+        <h2>আজই আপনার প্রথম মাইক্রো-জব শুরু করুন</h2>
+        <p>দ্রুত, নিরাপদ এবং প্রফেশনাল সেবা পেতে এখনই রেজিস্টার করুন।</p>
+        <a href="#" class="btn btn-primary">ফ্রি একাউন্ট খুলুন</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    © 2026 MicroJob Pro. সর্বস্বত্ব সংরক্ষিত।
+  </footer>
+</body>
+</html>
